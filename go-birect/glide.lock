@@ -1,0 +1,24 @@
+hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+updated: 2016-01-14T18:57:19.692878505-05:00
+imports:
+- name: fmt
+  version: ""
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - /proto
+- name: github.com/gorilla/websocket
+  version: 3986be78bf859e01f01af631ad76da5b269d270c
+- name: github.com/marcuswestin/go-ws
+  version: 764f2e27a9a17a7a8bd1e24776e88aef047047b2
+- name: log
+  version: ""
+- name: math
+  version: ""
+- name: net/http
+  version: ""
+- name: strings
+  version: ""
+- name: time
+  version: ""
+devImports: []

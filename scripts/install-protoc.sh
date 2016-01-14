@@ -1,0 +1,19 @@
+#/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+
+DIR=/tmp/protoc-v3.0.0-beta-2
+VER=3.0.0-beta-2
+ZIP=${DIR}/${VER}.zip
+
+brew install autoconf automake libtool
+mkdir -p ${DIR}
+curl -L https://github.com/google/protobuf/archive/v${VER}.zip -o ${ZIP}
+unzip ${ZIP} -d ${DIR}
+
+cd ${DIR}/protobuf-${VER}
+./autogen.sh
+./configure
+make
+make check
+sudo make install
