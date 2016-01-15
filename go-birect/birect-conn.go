@@ -14,95 +14,43 @@ import (
 	"github.com/marcuswestin/go-ws"
 )
 
-type reqId uint32
-type resChan chan *wire.Response
 type Conn struct {
 	wsConn    *ws.Conn
 	lastReqId reqId
 	resChans  map[reqId]resChan
 	JSONReqHandlerMap
+	ProtoReqHandlerMap
 }
-
-func newConn(wsConn *ws.Conn, jsonHandlers JSONReqHandlerMap) *Conn {
-	return &Conn{
-		wsConn:            wsConn,
-		resChans:          make(map[reqId]resChan, 1),
-		JSONReqHandlerMap: jsonHandlers,
-	}
-}
-
-var _ connInterface = &Conn{}
-
-type connInterface interface {
-	SendJSONReq(name string, paramsObj interface{}, resValPtr interface{}) (err error)
-	// SendProtoReq(name ReqName, req ProtoReq, resValPtr proto.ProtoMessage) (err error)
-	// Close()
-}
-
-type request interface {
-	// Sending side
-	encode() ([]byte, error)
-	// Receiving side
-	ParseParams(valPrt interface{})
-}
-type response interface {
-	// Sending side
-	dataType() wire.DataType
-	encode() ([]byte, error)
-	// Receiving side
-}
-
-// JSON Req/Res
-///////////////
-
-type JSONReqHandler func(req *JSONReq) (resValue interface{}, err error)
-type JSONReqHandlerMap map[string]JSONReqHandler
-type JSONReq struct {
-	*Conn
-	data []byte
-}
-
-func (j *JSONReq) ParseParams(valPtr interface{}) {
-	err := json.Unmarshal(j.data, valPtr)
-	if err != nil {
-		panic(errs.Wrap(err, nil, "Unable to parse params"))
-	}
-}
-
-type JSONRes struct{ resValPtr interface{} }
-
-func (j *JSONRes) encode() ([]byte, error) {
-	return json.Marshal(j.resValPtr)
-}
-func (j *JSONRes) dataType() wire.DataType {
-	return wire.DataType_JSON
-}
-
-func (m JSONReqHandlerMap) HandleJSONReq(reqName string, handler JSONReqHandler) {
-	m[reqName] = handler
-}
-
-func (c *Conn) SendJSONReq(name string, paramsObj interface{}, resValPtr interface{}) (err error) {
-	data, err := json.Marshal(paramsObj)
-	if err != nil {
-		return
-	}
-	reqId := c.nextReqId()
-	wireReq := &wire.Request{Type: wire.DataType_JSON, Name: name, ReqId: uint32(reqId), Data: data}
-	return c.sendRequestAndWaitForResponse(reqId, wireReq, resValPtr)
-}
-
-// Proto Req/Res
-////////////////
-
-// TODO
-
-// Internal - Outgoing wrappers
-///////////////////////////////
 
 func (c *Conn) Log(argv ...interface{}) {
 	log.Println(argv...)
 }
+
+// Internal
+///////////
+
+type reqId uint32
+type resChan chan *wire.Response
+
+func newConn(wsConn *ws.Conn, jsonHandlers JSONReqHandlerMap, protoHandlers ProtoReqHandlerMap) *Conn {
+	return &Conn{wsConn, 0, make(map[reqId]resChan, 1), jsonHandlers, protoHandlers}
+}
+
+type request interface {
+	// Request sending side
+	encode() ([]byte, error)
+	// Request handling side
+	ParseParams(valPrt interface{})
+}
+type response interface {
+	// Responding side
+	dataType() wire.DataType
+	encode() ([]byte, error)
+	// Response receiving side
+}
+
+// Internal - Outgoing wrappers
+///////////////////////////////
 
 func (c *Conn) sendRequestAndWaitForResponse(reqId reqId, wireReq *wire.Request, resValPtr interface{}) (err error) {
 	c.resChans[reqId] = make(resChan)
@@ -127,7 +75,6 @@ func (c *Conn) sendRequestAndWaitForResponse(reqId reqId, wireReq *wire.Request,
 	}
 	return
 }
-
 func (c *Conn) sendResponse(wireReq *wire.Request, response response) {
 	wireRes := &wire.Response{ReqId: wireReq.ReqId}
 	data, err := response.encode()
@@ -196,7 +143,6 @@ func (c *Conn) readAndHandleWireWrapper(data []byte) {
 		panic(errs.New(errs.Info{"Wrapper": wireWrapper}, "Unknown wire wrapper content type"))
 	}
 }
-
 func (c *Conn) handleMessage(msg *wire.Message) {
 	panic(errs.New(nil, "TODO: handleMessage"))
 }
@@ -204,21 +150,7 @@ func (c *Conn) handleRequest(wireReq *wire.Request) {
 	c.Log("HANDLE REQ", wireReq)
 	switch wireReq.Type {
 	case wire.DataType_JSON:
-		// Find handler
-		handler, exists := c.JSONReqHandlerMap[wireReq.Name]
-		if !exists {
-			c.sendErrorResponse(wireReq, errs.New(nil, "Missing request handler"))
-			return
-		}
-		// Execute handler
-		resVal, err := handler(&JSONReq{c, wireReq.Data})
-		if err != nil {
-			c.sendErrorResponse(wireReq, err)
-			return
-		}
-		// Send response
-		c.sendResponse(wireReq, &JSONRes{resVal})
-
+		c.handleJSONWireReq(wireReq)
 	default:
 		panic(errs.New(errs.Info{"Type": wireReq.Type}, "Bad wireReq.Type"))
 	}

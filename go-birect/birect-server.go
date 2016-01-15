@@ -7,8 +7,6 @@ import (
 	"github.com/marcuswestin/go-ws"
 )
 
-// Server
-/////////
 type Server struct {
 	JSONReqHandlerMap
 	connByWSConnMutex *sync.Mutex
@@ -37,6 +35,13 @@ func UpgradeRequests(pattern string) (server *Server) {
 	return server
 }
 
+func (s *Server) Log(args ...interface{}) {
+	log.Println(args...)
+}
+
+// Internal
+///////////
+
 func (s *Server) registerConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()
 	defer s.connByWSConnMutex.Unlock()
@@ -47,13 +52,3 @@ func (s *Server) deregisterConn(wsConn *ws.Conn) {
 	defer s.connByWSConnMutex.Unlock()
 	delete(s.connByWSConn, wsConn)
 }
-
-// func (s *Server) handleEvent(event *ws.Event, conn *ws.Conn) {
-// 	switch event.Type {
-// 	case ws.Connected:
-// 		// s.pool.registerChan <- conn
-// 	case ws.Disconnected:
-// 		// s.pool.unregisterChan <- conn
-// 	}
-// 	s.eventHandler(Event(event), conn)
-// }
