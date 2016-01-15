@@ -9,6 +9,7 @@ import (
 
 type Server struct {
 	JSONReqHandlerMap
+	ProtoReqHandlerMap
 	connByWSConnMutex *sync.Mutex
 	connByWSConn      map[*ws.Conn]*Conn
 }
@@ -16,6 +17,7 @@ type Server struct {
 func UpgradeRequests(pattern string) (server *Server) {
 	server = &Server{
 		make(JSONReqHandlerMap),
+		make(ProtoReqHandlerMap),
 		&sync.Mutex{},
 		make(map[*ws.Conn]*Conn, 10000),
 	}
@@ -45,7 +47,7 @@ func (s *Server) Log(args ...interface{}) {
 func (s *Server) registerConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()
 	defer s.connByWSConnMutex.Unlock()
-	s.connByWSConn[wsConn] = newConn(wsConn, s.JSONReqHandlerMap)
+	s.connByWSConn[wsConn] = newConn(wsConn, s.JSONReqHandlerMap, s.ProtoReqHandlerMap)
 }
 func (s *Server) deregisterConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()

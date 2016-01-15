@@ -4,11 +4,12 @@ import "github.com/marcuswestin/go-ws"
 
 type Client struct {
 	JSONReqHandlerMap
+	ProtoReqHandlerMap
 	*Conn
 }
 
 func Connect(url string) (client *Client, err error) {
-	client = &Client{make(JSONReqHandlerMap), nil}
+	client = &Client{make(JSONReqHandlerMap), make(ProtoReqHandlerMap), nil}
 	wsConnChan := make(chan *ws.Conn)
 	ws.Connect(url, func(event *ws.Event, conn *ws.Conn) {
 		client.Log("Client:", event)
@@ -17,11 +18,10 @@ func Connect(url string) (client *Client, err error) {
 			wsConnChan <- conn
 		case ws.BinaryMessage:
 			client.Conn.readAndHandleWireWrapperReader(event)
-
 		default:
 			panic("TODO Handle event: " + event.String())
 		}
 	})
-	client.Conn = newConn(<-wsConnChan, client.JSONReqHandlerMap)
+	client.Conn = newConn(<-wsConnChan, client.JSONReqHandlerMap, client.ProtoReqHandlerMap)
 	return
 }

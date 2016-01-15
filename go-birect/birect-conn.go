@@ -151,6 +151,8 @@ func (c *Conn) handleRequest(wireReq *wire.Request) {
 	switch wireReq.Type {
 	case wire.DataType_JSON:
 		c.handleJSONWireReq(wireReq)
+	case wire.DataType_Proto:
+		c.handleProtoWireReq(wireReq)
 	default:
 		panic(errs.New(errs.Info{"Type": wireReq.Type}, "Bad wireReq.Type"))
 	}
