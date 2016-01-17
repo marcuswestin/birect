@@ -62,9 +62,13 @@ func (c *Conn) sendRequestAndWaitForResponse(reqId reqId, wireReq *wire.Request,
 		return
 	}
 
-	// Receive response
 	wireRes := <-c.resChans[reqId]
-	c.Log("RCV", wireReq.Name, reqId, wireRes.Type, len(wireRes.Data))
+	c.Log("RCV", wireReq.Name, "ReqId:", reqId, "DataType:", wireRes.Type, "len(Data):", len(wireRes.Data))
+
+	if wireRes.IsError {
+		return errors.New(string(wireRes.Data))
+	}
+
 	switch wireRes.Type {
 	case wire.DataType_JSON:
 		return json.Unmarshal(wireRes.Data, resValPtr)
@@ -89,11 +93,18 @@ func (c *Conn) sendResponse(wireReq *wire.Request, response response) {
 	}
 }
 func (c *Conn) sendErrorResponse(wireReq *wire.Request, err error) {
+	var publicMessage string
+	if errsErr, ok := err.(errs.Err); ok {
+		publicMessage = errsErr.PublicMsg()
+	}
+	if publicMessage == "" {
+		publicMessage = DefaultPublicErrorMessage
+	}
 	wireRes := &wire.Response{
 		ReqId:   wireReq.ReqId,
 		IsError: true,
-		// Type: ???,
-		// Data: []byte(responseError.Error()) ???,
+		Type:    wire.DataType_Text,
+		Data:    []byte(publicMessage),
 	}
 	c.sendWrapper(&wire.Wrapper{&wire.Wrapper_Response{wireRes}})
 }

@@ -1,5 +1,5 @@
 hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-updated: 2016-01-14T18:57:19.692878505-05:00
+updated: 2016-01-17T12:50:55.663400728-05:00
 imports:
 - name: fmt
   version: ""
@@ -10,7 +10,7 @@ imports:
 - name: github.com/gorilla/websocket
   version: 3986be78bf859e01f01af631ad76da5b269d270c
 - name: github.com/marcuswestin/go-ws
-  version: 764f2e27a9a17a7a8bd1e24776e88aef047047b2
+  version: c1d7773dada5e71eaa18927400e7f94b82cea769
 - name: log
   version: ""
 - name: math

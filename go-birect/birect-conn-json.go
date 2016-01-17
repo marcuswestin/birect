@@ -48,7 +48,7 @@ func (c *Conn) handleJSONWireReq(wireReq *wire.Request) {
 	// Execute handler
 	resVal, err := handler(&JSONReq{c, wireReq.Data})
 	if err != nil {
-		c.sendErrorResponse(wireReq, err)
+		c.sendErrorResponse(wireReq, errs.Wrap(err, errs.Info{"HandlerName": wireReq.Name}))
 		return
 	}
 	// Send response

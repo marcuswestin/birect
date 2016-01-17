@@ -3,7 +3,7 @@ syntax = "proto3";
 package wire;
 
 enum DataType {
-	_ = 0;
+	Text = 0;
 	JSON = 1;
 	Proto = 2;
 }
@@ -32,7 +32,7 @@ message Request {
 message Response {
 	DataType type   = 1;
 	uint32   req_id = 2;
-	bool     isError = 3;
+	bool     is_error = 3;
 	// 3 left out
 	bytes    data   = 4;
 }
