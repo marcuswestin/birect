@@ -36,6 +36,7 @@ TODO
 
 - [ ] Implement protobuf-based Conn
 - [ ] De-duplicate json/protobuf Conn code
+- [ ] Consider implementing text-based Conn
 - [ ] Tests for protobuf code
 - [ ] Tests for error handling
 - [ ] Pluggable Client/Server logging
@@ -46,3 +47,6 @@ TODO
 - [ ] JS conn + Connect
 - [ ] JS Attachment sending
 - [ ] Go Attachment recieving
+- [ ] Consider all names
+	- [ ] Req/Res vs Request/Response
+	- [ ] Go, JS, Objc, Java
