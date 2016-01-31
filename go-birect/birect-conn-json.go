@@ -46,6 +46,16 @@ func (c *Conn) handleJSONWireReq(wireReq *wire.Request) {
 		return
 	}
 	// Execute handler
+	defer func() {
+		if r := recover(); r != nil {
+			err, ok := r.(error)
+			if !ok {
+				err = errs.New(errs.Info{"Recovery": r})
+			}
+			c.Log("Error while handling request", wireReq.Name, err)
+			c.sendErrorResponse(wireReq, errs.Wrap(err, errs.Info{"Name": wireReq.Name, "Data": wireReq.Data}))
+		}
+	}()
 	resVal, err := handler(&JSONReq{c, wireReq.Data})
 	if err != nil {
 		c.sendErrorResponse(wireReq, errs.Wrap(err, errs.Info{"HandlerName": wireReq.Name}))
