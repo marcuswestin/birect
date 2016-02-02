@@ -1,3 +1,8 @@
+setup:
+	bash scripts/install-protoc.sh
+	cd go-birect && glide install --quiet
+	cd js-birect && npm install
+
 test: test-go test-js
 
 GO_PROTOS = go-birect/internal/wire/*.go
