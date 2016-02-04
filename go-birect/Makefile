@@ -1,6 +1,4 @@
 test: ${GO_PROTOS} lint vet
-	go test -v .
-test-race: test
 	go test --race -v .
 lint:
 	golint .

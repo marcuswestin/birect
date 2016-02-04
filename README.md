@@ -34,7 +34,6 @@ Coming.
 TODO
 ----
 
-- [ ] Fix `make test-race`
 - [ ] Implement protobuf-based Conn
 - [ ] De-duplicate json/protobuf Conn code
 - [ ] Consider implementing text-based Conn
@@ -51,3 +50,4 @@ TODO
 - [ ] Consider all names
 	- [ ] Req/Res vs Request/Response
 	- [ ] Go, JS, Objc, Java
+- [X] Fix `make test-race`

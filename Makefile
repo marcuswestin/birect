@@ -1,4 +1,4 @@
-setup: setup-go setup-js
+setup: setup-go setup-js setup-dev
 test: test-go test-js
 clean-test: test-clean-go test-clean-js
 
@@ -8,8 +8,6 @@ setup-go:
 	cd go-birect && glide install
 test-go:
 	cd go-birect && make test
-test-go-race:
-	cd go-birect && make test-race
 
 # js
 ####
@@ -23,8 +21,7 @@ test-js:
 test-clean-go:
 	rm -rf ${GOPATH}/src/github.com/marcuswestin/birect
 	go get github.com/marcuswestin/birect/go-birect
-	go test -v github.com/marcuswestin/birect/go-birect
-	# TODO: go test --race -v github.com/marcuswestin/birect/go-birect
+	go test --race -v github.com/marcuswestin/birect/go-birect
 test-clean-js:
 	rm -rf ./js-birect/node_modules
 	cd ./js-birect && npm install

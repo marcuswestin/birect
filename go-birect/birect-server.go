@@ -31,7 +31,9 @@ func UpgradeRequests(pattern string) (server *Server) {
 		case ws.Connected:
 			server.registerConn(wsConn)
 		case ws.BinaryMessage:
-			server.connByWSConn[wsConn].readAndHandleWireWrapperReader(event)
+			if conn := server.getConn(wsConn); conn != nil {
+				conn.readAndHandleWireWrapperReader(event)
+			}
 		case ws.Disconnected:
 			server.deregisterConn(wsConn)
 		default:
@@ -53,4 +55,9 @@ func (s *Server) deregisterConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()
 	defer s.connByWSConnMutex.Unlock()
 	delete(s.connByWSConn, wsConn)
+}
+func (s *Server) getConn(wsConn *ws.Conn) *Conn {
+	s.connByWSConnMutex.Lock()
+	defer s.connByWSConnMutex.Unlock()
+	return s.connByWSConn[wsConn]
 }
