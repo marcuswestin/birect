@@ -7,17 +7,21 @@ import (
 	"github.com/marcuswestin/go-ws"
 )
 
+// Server is used register request handlers (for requests sent from clients),
+// and to accept incoming connections from birect clients.
 type Server struct {
-	JSONReqHandlerMap
-	ProtoReqHandlerMap
+	jsonReqHandlerMap
+	protoReqHandlerMap
 	connByWSConnMutex *sync.Mutex
 	connByWSConn      map[*ws.Conn]*Conn
 }
 
+// UpgradeRequests will upgrade all incoming HTTP requests that match `pattern`
+// to birect connections.
 func UpgradeRequests(pattern string) (server *Server) {
 	server = &Server{
-		make(JSONReqHandlerMap),
-		make(ProtoReqHandlerMap),
+		make(jsonReqHandlerMap),
+		make(protoReqHandlerMap),
 		&sync.Mutex{},
 		make(map[*ws.Conn]*Conn, 10000),
 	}
@@ -37,17 +41,13 @@ func UpgradeRequests(pattern string) (server *Server) {
 	return server
 }
 
-func (s *Server) Log(args ...interface{}) {
-	log.Println(args...)
-}
-
 // Internal
 ///////////
 
 func (s *Server) registerConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()
 	defer s.connByWSConnMutex.Unlock()
-	s.connByWSConn[wsConn] = newConn(wsConn, s.JSONReqHandlerMap, s.ProtoReqHandlerMap)
+	s.connByWSConn[wsConn] = newConn(wsConn, s.jsonReqHandlerMap, s.protoReqHandlerMap)
 }
 func (s *Server) deregisterConn(wsConn *ws.Conn) {
 	s.connByWSConnMutex.Lock()

@@ -34,6 +34,7 @@ Coming.
 TODO
 ----
 
+- [ ] Fix `make test-race`
 - [ ] Implement protobuf-based Conn
 - [ ] De-duplicate json/protobuf Conn code
 - [ ] Consider implementing text-based Conn

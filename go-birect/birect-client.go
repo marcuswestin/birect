@@ -2,14 +2,17 @@ package birect
 
 import "github.com/marcuswestin/go-ws"
 
+// Client is used register request handlers (for requests sent from the server),
+// and to send requests to the server.
 type Client struct {
-	JSONReqHandlerMap
-	ProtoReqHandlerMap
+	jsonReqHandlerMap
+	protoReqHandlerMap
 	*Conn
 }
 
+// Connect connects to a birect server at url
 func Connect(url string) (client *Client, err error) {
-	client = &Client{make(JSONReqHandlerMap), make(ProtoReqHandlerMap), nil}
+	client = &Client{make(jsonReqHandlerMap), make(protoReqHandlerMap), nil}
 	wsConnChan := make(chan *ws.Conn)
 	ws.Connect(url, func(event *ws.Event, conn *ws.Conn) {
 		client.Log("Client:", event)
@@ -22,6 +25,6 @@ func Connect(url string) (client *Client, err error) {
 			panic("TODO Handle event: " + event.String())
 		}
 	})
-	client.Conn = newConn(<-wsConnChan, client.JSONReqHandlerMap, client.ProtoReqHandlerMap)
+	client.Conn = newConn(<-wsConnChan, client.jsonReqHandlerMap, client.protoReqHandlerMap)
 	return
 }
