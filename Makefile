@@ -4,18 +4,12 @@ clean-test: test-clean-go test-clean-js
 
 # go
 ####
-GO_PROTOS := go-birect/internal/wire/*.go
-PROTOEASY := ${GOPATH}/bin/protoeasy
 setup-go:
 	cd go-birect && glide install
-test-go: ${GO_PROTOS}
+test-go:
 	cd go-birect && make test
-test-go-race: ${GO_PROTOS}
+test-go-race:
 	cd go-birect && make test-race
-${GO_PROTOS}: proto/*.proto ${PROTOEASY}
-	${protoeasy} --go ./proto --out ./go-birect/internal/wire
-${PROTOEASY}:
-	go get go.pedge.io/protoeasy/cmd/protoeasy
 
 # js
 ####
