@@ -1,4 +1,7 @@
-var {test, check, assert, checkErr, print, await} = require('tinytest')
+var tinytest = require('tinytest')
+var test = tinytest.test
+var assert = tinytest.assert
+var await = tinytest.await
 var conn = require('./birect-conn')
 var server = require('./birect-server')
 var client = require('./birect-client')

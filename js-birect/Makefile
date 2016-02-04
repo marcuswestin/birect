@@ -1,2 +1,2 @@
 test:
-	node --harmony-destructuring birect_tests.js
+	node birect_tests.js
