@@ -3,11 +3,11 @@ test: test-go test-js
 
 # go
 ####
-GO_PROTOS = go-birect/internal/wire/*.go
-PROTOEASY = ${GOPATH}/bin/protoeasy
+GO_PROTOS := go-birect/internal/wire/*.go
+PROTOEASY := ${GOPATH}/bin/protoeasy
 setup-go:
 	cd go-birect && glide install
-test-go: ${GO_PROTOS}
+test-go:# ${GO_PROTOS}
 	cd go-birect && make test
 ${GO_PROTOS}: proto/*.proto ${PROTOEASY}
 	${protoeasy} --go ./proto --out ./go-birect/internal/wire
